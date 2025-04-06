@@ -1,0 +1,102 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 30% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 142 72% 29%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 39 100% 50%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 72% 29%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 142 50% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 142 60% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 142 60% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 142 72% 40%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 142 50% 20%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 39 100% 50%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 142 50% 20%;
+    --input: 142 50% 20%;
+    --ring: 142 72% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-montserrat font-semibold;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply bg-wellness-green text-white hover:bg-wellness-green-dark transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-wellness-blue text-white hover:bg-wellness-blue-dark transition-colors;
+  }
+  
+  .btn-accent {
+    @apply bg-wellness-yellow hover:bg-wellness-yellow-dark transition-colors;
+  }
+}
