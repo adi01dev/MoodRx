@@ -13,7 +13,19 @@ from transformers import pipeline, AutoModelForSequenceClassification, AutoToken
 from typing import List, Dict, Any, Optional
 import requests
 from dotenv import load_dotenv
+import jwt
+from datetime import datetime, timedelta
+import pytz
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+from fpdf import FPDF
+import logging
+from io import BytesIO
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
