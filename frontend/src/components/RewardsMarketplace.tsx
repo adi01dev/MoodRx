@@ -34,11 +34,11 @@ export function RewardsMarketplace() {
       setRewards(response.data);
     } catch (error) {
       console.error('Error fetching rewards:', error);
-      toast({
-        title: "Error",
-        description: "Could not load rewards",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load rewards",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }

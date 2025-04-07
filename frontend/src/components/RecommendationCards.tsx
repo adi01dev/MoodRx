@@ -33,11 +33,11 @@ export function RecommendationCards() {
       setRecommendations(response.data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
-      toast({
-        title: "Error",
-        description: "Could not load recommendations",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load recommendations",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }

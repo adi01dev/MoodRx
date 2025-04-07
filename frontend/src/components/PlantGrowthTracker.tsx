@@ -39,11 +39,11 @@ export function PlantGrowthTracker() {
       setPlantData(response.data);
     } catch (error) {
       console.error('Error fetching plant growth data:', error);
-      toast({
-        title: "Error",
-        description: "Could not load plant growth data",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load plant growth data",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }
