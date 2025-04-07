@@ -1,9 +1,15 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -17,13 +23,12 @@ const LoginPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Get the page they were trying to access before being redirected to login
-  const from = location.state?.from?.pathname || "/";
+
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       toast({
         title: "Email required",
@@ -32,7 +37,7 @@ const LoginPage = () => {
       });
       return;
     }
-    
+
     if (!password) {
       toast({
         title: "Password required",
@@ -41,15 +46,15 @@ const LoginPage = () => {
       });
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Login error:", error);
-      // Error is already handled in the login function
+      // Error should already be handled in the login function
     } finally {
       setIsLoading(false);
     }
@@ -60,12 +65,12 @@ const LoginPage = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-wellness-green rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">MH</span>
+            <span className="text-white font-bold text-lg">MR</span>
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-gray-900">MoodBloom</h1>
+          <h1 className="mt-4 text-3xl font-bold text-gray-900">MoodRx</h1>
           <p className="mt-2 text-gray-600">Your mental wellness companion</p>
         </div>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
@@ -90,7 +95,7 @@ const LoginPage = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link 
+                  <Link
                     to="/forgot-password"
                     className="text-xs text-wellness-blue hover:text-wellness-blue-dark"
                   >
@@ -108,9 +113,10 @@ const LoginPage = () => {
                 />
               </div>
             </CardContent>
+
             <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-wellness-green hover:bg-wellness-green-dark"
                 disabled={isLoading}
               >
@@ -123,10 +129,11 @@ const LoginPage = () => {
                   "Sign In"
                 )}
               </Button>
+
               <p className="text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link 
-                  to="/register" 
+                <Link
+                  to="/register"
                   className="font-medium text-wellness-blue hover:text-wellness-blue-dark"
                 >
                   Sign up
