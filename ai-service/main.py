@@ -14,6 +14,7 @@ from transformers import pipeline, AutoModelForSequenceClassification, AutoToken
 from typing import List, Dict, Any, Optional
 import requests
 from dotenv import load_dotenv
+import numpy as np
 
 # Load environment variables
 load_dotenv()
