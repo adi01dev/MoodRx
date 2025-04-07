@@ -1,10 +1,17 @@
-
 import axios from "axios";
 import { env } from "./env";
 
-// Create an axios instance
+// Create API instances
 export const api = axios.create({
-  baseURL: env.API_URL,
+  baseURL: env.API_URL || "http://localhost:5000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Create AI service API instance
+export const aiApi = axios.create({
+  baseURL: "http://localhost:8000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,6 +19,20 @@ export const api = axios.create({
 
 // Request interceptor to add authorization header
 api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Also add token to AI service requests (if needed for your architecture)
+aiApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -56,6 +77,17 @@ api.interceptors.response.use(
       }
     }
     
+    return Promise.reject(error);
+  }
+);
+
+// AI service error handling
+aiApi.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error("AI Service error:", error);
     return Promise.reject(error);
   }
 );

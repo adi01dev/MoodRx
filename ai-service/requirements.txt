@@ -11,3 +11,5 @@ soundfile==0.12.1
 scikit-learn==1.4.2
 requests==2.31.0
 python-dotenv==1.0.1
+PyJWT>=2.0
+
