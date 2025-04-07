@@ -17,6 +17,8 @@ import ProfilePage from "./pages/ProfilePage";
 import RewardsPage from "./pages/RewardsPage";
 import GamesPage from "./pages/GamesPage";
 import NotFound from "./pages/NotFound";
+import { Import } from "lucide-react";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +30,10 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/check-in" element={<ProtectedRoute><CheckInPage /></ProtectedRoute>} />
             <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />

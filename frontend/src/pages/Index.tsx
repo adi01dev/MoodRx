@@ -1,137 +1,220 @@
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import { LeafIcon } from "@/components/PlantIcons";
+import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+
+import { ArrowRight, BarChart, Brain, Import, MusicIcon, Smile, Sparkles, Users } from "lucide-react";
 
 const Index = () => {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    // If already authenticated, redirect to dashboard
-    if (isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, navigate]);
+  const navItems = [
+    { name: "Index", path: "/index"}
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-wellness-green-light/20 to-wellness-blue-light/20">
-      <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="md:w-1/2 space-y-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-wellness-green rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">MH</span>
-              </div>
-              <h1 className="ml-3 text-3xl font-bold text-gray-900">MoodBloom</h1>
-            </div>
-            
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 font-montserrat">
-              Your Mental Wellness Journey Starts Here
-            </h2>
-            
-            <p className="text-xl text-gray-600">
-              Track your mood, analyze your emotions, and get personalized recommendations 
-              for better mental health.
+    <Layout hideNavigation>
+      {/* Hero Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+          <div className="space-y-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight">
+              Your Mental Health{" "}
+              <span className="gradient-text">Mirror</span>
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Track your mood, receive personalized recommendations, and understand your emotional patterns with our AI-powered wellness companion.
             </p>
-            
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                className="bg-wellness-green hover:bg-wellness-green-dark text-white text-lg py-6 px-8"
-                onClick={() => navigate('/register')}
-              >
-                Start Your Journey
+              {user ? (
+                <Button size="lg" className="btn-primary" asChild>
+                  <Link to="/dashboard">
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button size="lg" className="btn-primary" asChild>
+                    <Link to="/register">
+                      Get Started
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="lg" asChild>
+                    <Link to="/login">Login</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="rounded-xl overflow-hidden shadow-xl">
+            <img 
+              src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+              alt="Wellness visualization" 
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 bg-mhm-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">How MindRx Helps</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Our platform uses AI to help you understand and improve your mental well-being through several key features.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-blue-100 flex items-center justify-center mb-4">
+                <Smile className="h-6 w-6 text-mhm-blue-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Voice Mood Check-ins</h3>
+              <p className="text-muted-foreground">
+                Speak naturally about your day, and our AI will analyze your emotional state, detecting stress, happiness, anxiety, and more.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-green-100 flex items-center justify-center mb-4">
+                <MusicIcon className="h-6 w-6 text-mhm-green-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Personalized Recommendations</h3>
+              <p className="text-muted-foreground">
+                Receive curated music, videos, and activities matched to your current emotional state to help you feel better.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-yellow-100 flex items-center justify-center mb-4">
+                <BarChart className="h-6 w-6 text-mhm-yellow-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Mood Tracking</h3>
+              <p className="text-muted-foreground">
+                Visualize your emotional patterns over time to identify triggers and track your progress toward better mental health.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-yellow-100 flex items-center justify-center mb-4">
+                <Brain className="h-6 w-6 text-mhm-yellow-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">AI-Powered Insights</h3>
+              <p className="text-muted-foreground">
+                Gain deeper understanding of your emotions with analysis that identifies patterns and suggests positive changes.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-blue-100 flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-mhm-blue-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Support Community</h3>
+              <p className="text-muted-foreground">
+                Connect with others who share similar challenges, exchange tips, and build a network of mutual support.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-full bg-mhm-green-100 flex items-center justify-center mb-4">
+                <Sparkles className="h-6 w-6 text-mhm-green-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Weekly Wellness Report</h3>
+              <p className="text-muted-foreground">
+                Receive a comprehensive summary of your mood trends, progress, and personalized insights every week.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-gradient-to-r from-mhm-blue-50 to-mhm-green-50 p-8 md:p-12 rounded-xl max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
+              Begin Your Wellness Journey Today
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Join thousands of users who have improved their mental well-being with MindMirror. Your path to better mental health starts here.
+            </p>
+            {user ? (
+              <Button size="lg" className="btn-primary" asChild>
+                <Link to="/dashboard">
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
-              
-              <Button 
-                variant="outline" 
-                className="border-wellness-green text-wellness-green hover:bg-wellness-green/10 text-lg py-6 px-8"
-                onClick={() => navigate('/login')}
-              >
-                Sign In
+            ) : (
+              <Button size="lg" className="btn-primary" asChild>
+                <Link to="/register">
+                  Get Started for Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-mhm-blue-50 py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-bold mb-4">MindMirror</h3>
+              <ul className="space-y-2">
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">About Us</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Our Team</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Careers</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
+              </ul>
             </div>
             
-            <div className="flex items-center gap-2 text-wellness-green">
-              <LeafIcon className="h-5 w-5" />
-              <span className="text-sm font-medium">Grow with every check-in</span>
-            </div>
-          </div>
-          
-          <div className="md:w-1/2 relative">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1545389336-cf090694435e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" 
-                alt="Mental Wellness" 
-                className="w-full h-auto"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-8">
-                <h3 className="text-white text-2xl font-bold">Voice-based Emotion Analysis</h3>
-                <p className="text-white/80">Let AI understand how you're feeling today</p>
-              </div>
+            <div>
+              <h3 className="font-bold mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Blog</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Mental Health Tips</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Crisis Support</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">FAQs</Link></li>
+              </ul>
             </div>
             
-            <div className="absolute -bottom-6 -right-6 bg-wellness-yellow rounded-lg p-4 shadow-lg hidden md:block">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <span className="text-wellness-yellow font-bold text-xl">7</span>
-                </div>
-                <div className="ml-3">
-                  <h4 className="text-white font-semibold">Day Streak</h4>
-                  <p className="text-white/80 text-sm">Keep growing your plant!</p>
-                </div>
-              </div>
+            <div>
+              <h3 className="font-bold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Terms of Service</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Cookie Policy</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">GDPR</Link></li>
+              </ul>
             </div>
-          </div>
-        </div>
-        
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-wellness-blue-light rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-wellness-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
+            
+            <div>
+              <h3 className="font-bold mb-4">Connect</h3>
+              <ul className="space-y-2">
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Twitter</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Instagram</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">LinkedIn</Link></li>
+                <li><Link to="#" className="text-muted-foreground hover:text-foreground">Facebook</Link></li>
+              </ul>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Voice Check-ins</h3>
-            <p className="text-gray-600">
-              Simply speak about your day, and our AI analyzes your tone, stress level, and emotional state.
-            </p>
           </div>
           
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-wellness-green-light rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-wellness-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Plant Growth Tracker</h3>
-            <p className="text-gray-600">
-              Watch your virtual plant grow as you maintain your daily wellness check-in streak.
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-wellness-purple-light rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-wellness-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Community Support</h3>
-            <p className="text-gray-600">
-              Connect with others facing similar challenges and share coping strategies.
-            </p>
+          <div className="mt-8 pt-6 border-t border-muted text-center text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} MindRx. All rights reserved.</p>
           </div>
         </div>
-        
-        <div className="mt-16 text-center">
-          <p className="text-gray-500 text-sm">
-            ©2025 MoodBloom. Mental wellness made personal.
-          </p>
-        </div>
-      </div>
-    </div>
+      </footer>
+    </Layout>
   );
 };
 
