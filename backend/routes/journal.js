@@ -10,7 +10,8 @@ const axios = require('axios');
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const journals = await Journal.find({ user: req.user.id })
+    console.log('Authenticated user:', req.user);
+    const journals = await Journal.find({ user: req.user._id })
       .sort({ createdAt: -1 });
     
     res.json(journals);
@@ -58,6 +59,14 @@ router.post('/', auth, async (req, res) => {
     res.status(500).json({ message: 'Error creating journal entry' });
   }
 });
+
+
+// Put this ABOVE the /:id route
+router.get('/entries', auth, async (req, res) => {
+  const journals = await Journal.find({ user: req.user._id }).sort({ createdAt: -1 });
+  res.json(journals);
+});
+
 
 // @route   GET api/journal/:id
 // @desc    Get a journal entry by ID
