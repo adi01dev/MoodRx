@@ -187,6 +187,20 @@ RECOMMENDATION_DATA = {
     }
 }
 
+def verify_token(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    
+    try:
+        token = authorization.replace("Bearer ", "")
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("user", {}).get("id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 def extract_audio_features(file_path):
     """Extract audio features from a sound file."""
     # Load the audio file
@@ -555,22 +569,13 @@ async def root():
     """Root endpoint to check if the service is running."""
     return {"message": "Mental Health Mirror AI Service is running"}
 
-def verify_token(authorization: str = Header(None)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
-    
-    try:
-        token = authorization.replace("Bearer ", "")
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        user_id = payload.get("user", {}).get("id")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-        return user_id
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+
 
 
 @app.post("/analyze-voice")
+
+    
+
 async def analyze_voice(audio: UploadFile = File(...), user_id: str = Depends(verify_token)):
     """Analyze voice recording to detect mood and emotions."""
     try:
@@ -789,19 +794,7 @@ async def get_stats(user_id: str = Depends(verify_token)):
         "user_id": user_id
     }
 
-def verify_token(authorization: str = Header(None)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
-    
-    try:
-        token = authorization.replace("Bearer ", "")
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        user_id = payload.get("user", {}).get("id")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-        return user_id
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+
 
 if __name__ == "__main__":
     import uvicorn
