@@ -1,12 +1,11 @@
-
 import os
 import tempfile
 import json
 import torch
 import numpy as np
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydub import AudioSegment
 import librosa
 import soundfile as sf
@@ -14,6 +13,7 @@ from transformers import pipeline, AutoModelForSequenceClassification, AutoToken
 from typing import List, Dict, Any, Optional
 import requests
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
 
 # Load environment variables
 load_dotenv()
@@ -28,6 +28,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# JWT Authentication settings
+JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
+JWT_ALGORITHM = "HS256"
 
 # Initialize sentiment analysis pipeline
 sentiment_model = "distilbert-base-uncased-finetuned-sst-2-english"
@@ -384,26 +388,198 @@ def get_recommendations(mood, energy_level, detected_emotions=[]):
     
     return recommendations
 
+def get_game_recommendations(mood, energy_level):
+    """Generate game recommendations based on mood and energy level."""
+    games = [
+        {
+            "id": "breathing",
+            "name": "Breathing Exercise",
+            "description": "A guided breathing exercise to help reduce stress and anxiety.",
+            "suitable_for": ["anxious", "stressed", "sad", "angry"],
+            "energy_required": "low"
+        },
+        {
+            "id": "memory",
+            "name": "Memory Match",
+            "description": "A fun memory matching game to help focus your mind on a pleasant task.",
+            "suitable_for": ["neutral", "sad", "bored", "tired"],
+            "energy_required": "medium"
+        },
+        {
+            "id": "color-relax",
+            "name": "Color Relaxation",
+            "description": "A color-based relaxation exercise to calm your mind.",
+            "suitable_for": ["anxious", "angry", "stressed", "energetic"],
+            "energy_required": "low"
+        }
+    ]
+    
+    # Map mood to suitable games
+    mood_map = {
+        "happy": ["memory", "color-relax"],
+        "sad": ["breathing", "memory"],
+        "anxious": ["breathing", "color-relax"],
+        "angry": ["breathing", "color-relax"],
+        "neutral": ["memory", "color-relax"],
+        "tired": ["breathing"],
+        "energetic": ["memory", "color-relax"]
+    }
+    
+    # Get suitable games based on mood
+    recommended_games = []
+    
+    if mood in mood_map:
+        recommended_game_ids = mood_map[mood]
+        for game in games:
+            if game["id"] in recommended_game_ids:
+                recommended_games.append(game)
+    else:
+        # Default recommendation if mood not found
+        recommended_games = [games[0], games[2]]  # Breathing and Color Relaxation
+    
+    # Sort games based on energy level
+    if energy_level < 4:  # Low energy
+        recommended_games.sort(key=lambda x: 0 if x["energy_required"] == "low" else 1)
+    else:  # Higher energy
+        recommended_games.sort(key=lambda x: 0 if x["energy_required"] == "medium" else 1)
+    
+    return recommended_games
+
+def generate_mood_summary_pdf(check_ins, user_id):
+    """Generate a PDF report of mood check-ins."""
+    try:
+        # Create a DataFrame from check-ins
+        df = pd.DataFrame(check_ins)
+        df['date'] = pd.to_datetime(df['createdAt'])
+        
+        # Create temporary directory for files
+        temp_dir = tempfile.mkdtemp()
+        
+        # Create plots
+        plt.figure(figsize=(10, 6))
+        
+        # Mood score over time
+        plt.subplot(2, 1, 1)
+        plt.plot(df['date'], df['moodScore'], marker='o', linestyle='-', color='#4B9CD3')
+        plt.title('Mood Score Over Time')
+        plt.ylabel('Mood Score')
+        plt.ylim(0, 10)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        
+        # Energy level over time
+        plt.subplot(2, 1, 2)
+        plt.plot(df['date'], df['energyLevel'], marker='o', linestyle='-', color='#F26522')
+        plt.title('Energy Level Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Energy Level')
+        plt.ylim(0, 10)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        
+        plt.tight_layout()
+        
+        # Save plot to file
+        plot_path = os.path.join(temp_dir, f"mood_chart_{user_id}.png")
+        plt.savefig(plot_path)
+        plt.close()
+        
+        # Create a PDF
+        pdf = FPDF()
+        pdf.add_page()
+        
+        # Title
+        pdf.set_font('Arial', 'B', 16)
+        pdf.cell(0, 10, 'Mood Summary Report', 0, 1, 'C')
+        pdf.ln(5)
+        
+        # Date range
+        pdf.set_font('Arial', '', 12)
+        date_range = f"Report period: {df['date'].min().strftime('%Y-%m-%d')} to {df['date'].max().strftime('%Y-%m-%d')}"
+        pdf.cell(0, 10, date_range, 0, 1)
+        pdf.ln(5)
+        
+        # Statistics
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, 'Summary Statistics:', 0, 1)
+        pdf.set_font('Arial', '', 12)
+        pdf.cell(0, 10, f"Average Mood Score: {df['moodScore'].mean():.1f}/10", 0, 1)
+        pdf.cell(0, 10, f"Average Energy Level: {df['energyLevel'].mean():.1f}/10", 0, 1)
+        
+        # Most frequent mood
+        mood_counts = df['mood'].value_counts()
+        most_common = mood_counts.index[0] if not mood_counts.empty else "N/A"
+        pdf.cell(0, 10, f"Most Common Mood: {most_common}", 0, 1)
+        pdf.ln(10)
+        
+        # Add chart
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, 'Mood and Energy Trends:', 0, 1)
+        pdf.image(plot_path, x=10, y=None, w=190)
+        pdf.ln(130)  # Space for the chart
+        
+        # Recommendations
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, 'Recommendations:', 0, 1)
+        pdf.set_font('Arial', '', 12)
+        
+        if df['moodScore'].mean() < 4:
+            pdf.multi_cell(0, 10, '• Consider speaking with a mental health professional\n• Prioritize self-care and rest\n• Try daily mood-boosting activities')
+        elif df['moodScore'].mean() < 7:
+            pdf.multi_cell(0, 10, '• Maintain healthy habits\n• Incorporate mindfulness practices\n• Stay connected with supportive people')
+        else:
+            pdf.multi_cell(0, 10, '• Great job maintaining positive mental health\n• Continue your current wellness practices\n• Share your strategies with others who might benefit')
+        
+        # Save the PDF to a temporary file
+        pdf_path = os.path.join(temp_dir, f"mood_summary_{user_id}.pdf")
+        pdf.output(pdf_path)
+        
+        return pdf_path
+        
+    except Exception as e:
+        logger.error(f"Error generating PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
+
 @app.get("/")
 async def root():
     """Root endpoint to check if the service is running."""
     return {"message": "Mental Health Mirror AI Service is running"}
 
+def verify_token(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    
+    try:
+        token = authorization.replace("Bearer ", "")
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("user", {}).get("id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
 @app.post("/analyze-voice")
-async def analyze_voice(audio: UploadFile = File(...)):
+async def analyze_voice(audio: UploadFile = File(...), user_id: str = Depends(verify_token)):
     """Analyze voice recording to detect mood and emotions."""
     try:
+        logger.info(f"Analyzing voice for user {user_id}")
         # Save the uploaded file temporarily
         temp_dir = tempfile.mkdtemp()
         temp_audio_path = os.path.join(temp_dir, "audio_file")
         
         with open(temp_audio_path, "wb") as buffer:
-            buffer.write(await audio.read())
+            while chunk := await audio.read(1024 * 1024):  # 1 MB chunks
+                buffer.write(chunk)
+
         
         # Convert WebM to WAV for processing if needed
         file_extension = os.path.splitext(audio.filename)[1].lower()
         processed_audio_path = temp_audio_path
         
+        if file_extension not in [".webm", ".wav", ".mp3"]:
+            raise HTTPException(status_code=400, detail="Unsupported file format")
+
+
         if file_extension == ".webm":
             wav_path = os.path.join(temp_dir, "audio_file.wav")
             audio_segment = AudioSegment.from_file(temp_audio_path, format="webm")
@@ -431,16 +607,22 @@ async def analyze_voice(audio: UploadFile = File(...)):
             "sentimentScore": text_analysis["sentimentScore"],
             "emotional_state": text_analysis["emotional_state"],
             "detected_emotions": text_analysis["detected_emotions"],
-            "transcribed_text": transcribed_text
+            "transcribed_text": transcribed_text,
+            "user_id": user_id
         }
+        
+        # Generate game recommendations based on emotional state
+        game_recommendations = get_game_recommendations(combined_analysis["mood"], combined_analysis["energy"])
+        combined_analysis["game_recommendations"] = game_recommendations
         
         return combined_analysis
     
     except Exception as e:
+        logger.error(f"Error analyzing voice: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error analyzing voice: {str(e)}")
 
 @app.post("/analyze-text")
-async def analyze_text(request: Request):
+async def analyze_text(request: Request, user_id: str = Depends(verify_token)):
     """Analyze text to detect mood and emotions."""
     try:
         data = await request.json()
@@ -450,36 +632,36 @@ async def analyze_text(request: Request):
             raise HTTPException(status_code=400, detail="Text is required")
         
         analysis = analyze_text_sentiment(text)
+        analysis["user_id"] = user_id
         return analysis
     
     except Exception as e:
+        logger.error(f"Error analyzing text: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error analyzing text: {str(e)}")
 
 @app.post("/generate-recommendations")
-async def generate_recommendations(request: Request):
+async def generate_recommendations(request: Request, user_id: str = Depends(verify_token)):
     """Generate personalized recommendations based on mood analysis."""
     try:
         data = await request.json()
         
-        userId = data.get("userId")
         mood = data.get("mood")
         energy_level = data.get("energyLevel")
         detected_emotions = data.get("detectedEmotions", [])
         
-        if not userId or not mood or not energy_level:
+        if not mood or not energy_level:
             raise HTTPException(status_code=400, detail="Missing required fields")
         
         recommendations = get_recommendations(mood, energy_level, detected_emotions)
         
-        # In a real application, we would store these in the database
-        # Here we'll just return them
-        return {"recommendations": recommendations}
+        return {"recommendations": recommendations, "user_id": user_id}
     
     except Exception as e:
+        logger.error(f"Error generating recommendations: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating recommendations: {str(e)}")
 
 @app.post("/generate-summary")
-async def generate_summary(request: Request):
+async def generate_summary(request: Request, user_id: str = Depends(verify_token)):
     """Generate weekly summary insights based on check-in data."""
     try:
         data = await request.json()
@@ -544,11 +726,70 @@ async def generate_summary(request: Request):
         
         return {
             "insights": insights,
-            "recommendations": recommendations
+            "recommendations": recommendations,
+            "user_id": user_id
         }
     
     except Exception as e:
+        logger.error(f"Error generating summary: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating summary: {str(e)}")
+
+@app.post("/generate-pdf-report")
+async def generate_pdf_report(request: Request, user_id: str = Depends(verify_token)):
+    """Generate and return a PDF report of mood check-ins."""
+    try:
+        data = await request.json()
+        check_ins = data.get("checkIns", [])
+        
+        if not check_ins:
+            raise HTTPException(status_code=400, detail="No check-in data provided")
+        
+        # Generate PDF
+        pdf_path = generate_mood_summary_pdf(check_ins, user_id)
+        
+        # Return the PDF file
+        return FileResponse(
+            path=pdf_path, 
+            filename="mood_summary.pdf", 
+            media_type="application/pdf"
+        )
+    
+    except Exception as e:
+        logger.error(f"Error generating PDF report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating PDF report: {str(e)}")
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+@app.get("/stats")
+async def get_stats(user_id: str = Depends(verify_token)):
+    """Get AI service statistics for a specific user."""
+    # This would typically connect to a database to fetch real stats
+    # For this example, we'll return mock data
+    return {
+        "total_analyses": 24,
+        "voice_analyses": 10,
+        "text_analyses": 14,
+        "most_common_mood": "neutral",
+        "average_mood_score": 6.7,
+        "user_id": user_id
+    }
+
+def verify_token(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    
+    try:
+        token = authorization.replace("Bearer ", "")
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("user", {}).get("id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 if __name__ == "__main__":
     import uvicorn
