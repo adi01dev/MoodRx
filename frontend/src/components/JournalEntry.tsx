@@ -38,7 +38,7 @@ export function JournalEntry() {
     setIsLoading(true);
 
     try {
-      await api.post("/journal/entries", {
+      await api.post("/journal/", {
         title,
         content,
       });
