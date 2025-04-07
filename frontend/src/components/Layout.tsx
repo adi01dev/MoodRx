@@ -59,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({
             )}
             <Link to="/" className="flex items-center space-x-2">
               <PieChart className="h-7 w-7 text-mhm-blue-500" />
-              <span className="font-serif text-xl font-bold">MindRx</span>
+              <span className="font-serif text-xl font-bold">MoodRx</span>
             </Link>
           </div>
 

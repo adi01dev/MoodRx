@@ -88,9 +88,9 @@ const RegisterPage = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-wellness-green rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">MH</span>
+            <span className="text-white font-bold text-lg">MR</span>
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-gray-900">MoodBloom</h1>
+          <h1 className="mt-4 text-3xl font-bold text-gray-900">MoodRx</h1>
           <p className="mt-2 text-gray-600">Your mental wellness companion</p>
         </div>
         

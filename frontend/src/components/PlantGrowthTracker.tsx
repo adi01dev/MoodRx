@@ -14,8 +14,8 @@ interface PlantGrowthData {
 }
 
 interface PlantGrowthTrackerProps {
-  // Existing props
-  collapsed: boolean; // Add this line
+  
+  collapsed: boolean; 
 }
 
 export function PlantGrowthTracker() {
@@ -82,23 +82,20 @@ export function PlantGrowthTracker() {
     }
   };
 
-  // Calculate the progress percentage towards the next level
   const calculateProgress = () => {
     if (plantData.plantLevel === 'tree') return 100;
     
-    // Define thresholds for each level
     const thresholds = {
-      seed: 1,    // sprout at 1 day
-      sprout: 3,  // leaf at 3 days
-      leaf: 7,    // flower at 7 days
-      flower: 14, // tree at 14 days
-      tree: 14,   // already max level
+      seed: 1,    
+      sprout: 3,  
+      leaf: 7,    
+      flower: 14, 
+      tree: 14,   
     };
 
     const current = plantData.streakCount;
     const target = thresholds[plantData.plantLevel];
     
-    // Calculate percentage (clamped to 0-100)
     return Math.min(Math.max(Math.floor((current / target) * 100), 0), 100);
   };
 

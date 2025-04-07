@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { TokenBalance } from "@/components/TokenBalance";
 import { PlantGrowthTracker } from "@/components/PlantGrowthTracker";
-import { Gamepad2 } from "lucide-react"; // Replace GameController with Gamepad2
-import { useIsMobile } from "@/hooks/use-mobile"; // Replace 'useMobile' with 'useIsMobile'
+import { Gamepad2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile"; 
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -69,7 +69,7 @@ const DashboardLayout = ({ children, pageTitle }: DashboardLayoutProps) => {
                 <div className="h-8 w-8 bg-wellness-green rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold">MR</span>
                 </div>
-                <Link to='/'> <h1 className="font-semibold">MindRx</h1></Link>
+                <Link to='/'> <h1 className="font-semibold">MoodRx</h1></Link>
               </div>
             )}
             <Button
