@@ -33,7 +33,7 @@ const DashboardLayout = ({ children, pageTitle }: DashboardLayoutProps) => {
 
   // Navigation items for the sidebar
   const navItems = [
-    { name: "Dashboard", path: "/", icon: BarChart2 },
+    { name: "Dashboard", path: "/dashboard", icon: BarChart2 },
     { name: "Check-In", path: "/check-in", icon: CheckSquare },
     { name: "Journal", path: "/journal", icon: BookOpen },
     { name: "History", path: "/history", icon: Calendar },
@@ -67,9 +67,9 @@ const DashboardLayout = ({ children, pageTitle }: DashboardLayoutProps) => {
             {!sidebarCollapsed && (
               <div className="flex items-center space-x-2">
                 <div className="h-8 w-8 bg-wellness-green rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold">MB</span>
+                  <span className="text-white font-semibold">MR</span>
                 </div>
-                <h1 className="font-semibold">Mind Bloom</h1>
+                <Link to='/'> <h1 className="font-semibold">MindRx</h1></Link>
               </div>
             )}
             <Button
