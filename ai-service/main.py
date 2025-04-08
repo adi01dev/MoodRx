@@ -204,6 +204,8 @@ def verify_token(authorization: str = Header(None)):
 def extract_audio_features(file_path):
     """Extract audio features from a sound file."""
     # Load the audio file
+    print("📂 File path received:", file_path)
+
     y, sr = librosa.load(file_path, sr=None)
     
     # Extract features

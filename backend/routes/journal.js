@@ -63,7 +63,8 @@ router.post('/', auth, async (req, res) => {
 
 // Put this ABOVE the /:id route
 router.get('/entries', auth, async (req, res) => {
-  const journals = await Journal.find({ user: req.user._id }).sort({ createdAt: -1 });
+  const journals = await Journal.find({ user: req.user.id }).sort({ createdAt: -1 });
+  console.log(journals)
   res.json(journals);
 });
 

@@ -39,6 +39,8 @@ app.use('/api/journal', require('./routes/journal'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/community', require('./routes/community'));
 app.use('/api/tokens', require('./routes/tokens'));
+const groupRoutes = require("./routes/group.js");
+app.use("/api", groupRoutes);
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');

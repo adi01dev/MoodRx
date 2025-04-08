@@ -46,6 +46,7 @@ router.get('/:id', auth, async (req, res) => {
 // @desc    Create a new community group
 // @access  Private
 router.post('/', auth, async (req, res) => {
+ // console.log("Sending group data:", newGroup);
   try {
     const { name, description, category } = req.body;
     

@@ -21,8 +21,7 @@ module.exports = async function(req, res, next) {
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
-    
-    req.user = user;
+    req.user = { id: user._id.toString() };
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });

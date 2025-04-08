@@ -15,6 +15,11 @@ import { api } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { Send, Users, Loader2, UserPlus, Plus, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import axios, { AxiosError } from "axios";
+import GroupList from '@/components/GroupList'; // adjust path if needed
+
+//import { io, Socket } from "socket.io-client";
+const host = import.meta.env.VITE_API_URL
 
 interface Message {
   _id: string;
@@ -85,7 +90,7 @@ export function CommunityChat() {
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/community');
+      const response = await api.get(`/community`);
       setGroups(response.data);
       
       // Set the first group as selected by default
@@ -107,7 +112,7 @@ export function CommunityChat() {
   const fetchGroupDetails = async (groupId: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/community/${groupId}`);
+      const response = await api.get(`${host}/api/community/${groupId}`);
       setMessages(response.data.messages || []);
     } catch (error) {
       console.error('Error fetching group details:', error);
@@ -127,7 +132,7 @@ export function CommunityChat() {
     setSendingMessage(true);
 
     try {
-      const response = await api.post(`/api/community/${selectedGroup}/message`, {
+      const response = await api.post(`/community/${selectedGroup}/message`, {
         content: message,
       });
       
@@ -161,7 +166,7 @@ export function CommunityChat() {
     setCreatingGroup(true);
 
     try {
-      const response = await api.post('/api/community', newGroup);
+      const response = await api.post(`/community`, newGroup);
       
       // Add new group to list and select it
       setGroups(prev => [response.data, ...prev]);
@@ -194,7 +199,7 @@ export function CommunityChat() {
 
   const joinGroup = async (groupId: string) => {
     try {
-      const response = await api.post(`/api/community/${groupId}/join`);
+      const response = await api.post(`/community/${groupId}/join`);
       
       // Update groups list with the updated group
       setGroups(prev => prev.map(g => g._id === groupId ? response.data : g));
@@ -204,7 +209,13 @@ export function CommunityChat() {
         description: "You have successfully joined the group",
       });
     } catch (error) {
-      console.error('Error joining group:', error);
+      const err = error as AxiosError;
+  
+      console.error("Error joining group:", {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
       toast({
         title: "Error",
         description: "Could not join the group",
@@ -212,10 +223,16 @@ export function CommunityChat() {
       });
     }
   };
+  <GroupList 
+  groups={groups} 
+  currentUserId={user.id } 
+  joinGroup={joinGroup}
+/>
+
 
   const leaveGroup = async (groupId: string) => {
     try {
-      const response = await api.post(`/api/community/${groupId}/leave`);
+      const response = await api.post(`/community/${groupId}/leave`);
       
       // Update groups list with the updated group
       setGroups(prev => prev.map(g => g._id === groupId ? response.data : g));
@@ -249,7 +266,7 @@ export function CommunityChat() {
   const seedGroups = async () => {
     try {
       setLoading(true);
-      const response = await api.post('/api/community/seed');
+      const response = await api.post(`${host}/api/community/seed`);
       setGroups(response.data);
       
       if (response.data.length > 0) {

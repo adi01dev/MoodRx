@@ -5,7 +5,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/api";
+import { GroupType } from '@/hooks/types';
+
 import { Wallet, CheckCircle, AlertTriangle } from "lucide-react";
+//const [groups, setGroups] = useState<GroupType[]>([]);
 
 declare global {
   interface Window {
@@ -30,8 +33,21 @@ export function ConnectWallet() {
       setHasMetamask(!!window.ethereum);
     }
     
-    // Fetch current wallet state
-    fetchWalletState();
+    const fetchGroups = async () => {
+      try {
+        const res = await api.get('community');
+        res.data;
+      } catch (err) {
+        console.error("Failed to fetch groups:", err);
+        toast({
+          title: "Error",
+          description: "Cannot load community groups",
+          variant: "destructive",
+        });
+      }
+    };
+  
+    fetchGroups();
   }, []);
 
   const fetchWalletState = async () => {
