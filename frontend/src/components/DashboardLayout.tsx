@@ -177,5 +177,5 @@ const DashboardLayout = ({ children, pageTitle }: DashboardLayoutProps) => {
     </div>
   );
 };
-
+  {/*Nothing just footer*/}
 export default DashboardLayout;
