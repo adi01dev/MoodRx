@@ -30,11 +30,11 @@ export function TokenHistory() {
       setTransactions(response.data);
     } catch (error) {
       console.error('Error fetching token history:', error);
-      toast({
-        title: "Error",
-        description: "Could not load token history",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load token history",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }

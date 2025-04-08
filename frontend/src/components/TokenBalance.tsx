@@ -34,11 +34,11 @@ export function TokenBalance({ showDetails = false }: TokenBalanceProps) {
       setTokenData(response.data);
     } catch (error) {
       console.error('Error fetching token balance:', error);
-      toast({
-        title: "Error",
-        description: "Could not load token balance",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load token balance",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }

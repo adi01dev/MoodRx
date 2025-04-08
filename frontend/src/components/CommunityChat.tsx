@@ -99,11 +99,11 @@ export function CommunityChat() {
       }
     } catch (error) {
       console.error('Error fetching groups:', error);
-      toast({
-        title: "Error",
-        description: "Could not load community groups",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load community groups",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }
@@ -116,11 +116,11 @@ export function CommunityChat() {
       setMessages(response.data.messages || []);
     } catch (error) {
       console.error('Error fetching group details:', error);
-      toast({
-        title: "Error",
-        description: "Could not load group messages",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load group messages",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }
@@ -143,11 +143,11 @@ export function CommunityChat() {
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Error",
-        description: "Could not send your message",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not send your message",
+      //   variant: "destructive",
+      // });
     } finally {
       setSendingMessage(false);
     }
@@ -155,11 +155,11 @@ export function CommunityChat() {
 
   const createGroup = async () => {
     if (!newGroup.name.trim() || !newGroup.description.trim() || !newGroup.category) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Missing Information",
+      //   description: "Please fill in all fields",
+      //   variant: "destructive",
+      // });
       return;
     }
 
@@ -187,11 +187,11 @@ export function CommunityChat() {
       });
     } catch (error) {
       console.error('Error creating group:', error);
-      toast({
-        title: "Error",
-        description: "Could not create community group",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not create community group",
+      //   variant: "destructive",
+      // });
     } finally {
       setCreatingGroup(false);
     }
@@ -209,13 +209,7 @@ export function CommunityChat() {
         description: "You have successfully joined the group",
       });
     } catch (error) {
-      const err = error as AxiosError;
-  
-      console.error("Error joining group:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
+      console.error('Error joining group:', error);
       toast({
         title: "Error",
         description: "Could not join the group",
@@ -243,11 +237,11 @@ export function CommunityChat() {
       });
     } catch (error) {
       console.error('Error leaving group:', error);
-      toast({
-        title: "Error",
-        description: "Could not leave the group",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not leave the group",
+      //   variant: "destructive",
+      // });
     }
   };
 

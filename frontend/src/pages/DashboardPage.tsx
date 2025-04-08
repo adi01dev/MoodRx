@@ -51,7 +51,6 @@ const DashboardPage = () => {
     }
   };
 
-  // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -59,7 +58,6 @@ const DashboardPage = () => {
     return "Good evening";
   };
 
-  // Determine if user needs to check in today
   const needsCheckIn = () => {
     if (!stats.lastCheckIn) return true;
     
@@ -74,7 +72,7 @@ const DashboardPage = () => {
       <div className="space-y-8">
         {/* Welcome Section */}
         <section>
-          <div className="bg-wellness-green/10 rounded-lg p-6 md:flex md:items-center md:justify-between">
+          <div className="bg-wellness-green/10 p-6 md:flex md:items-center md:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-wellness-green-dark">
                 {getGreeting()}, {user?.name?.split(' ')[0] || 'Friend'}!
@@ -99,7 +97,7 @@ const DashboardPage = () => {
         </section>
 
         {/* Plant Growth and Stats Summary */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="ml-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           <PlantGrowthTracker />
           
           <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -113,7 +111,7 @@ const DashboardPage = () => {
               </div>
             </div>
             
-            <div className="bg-wellness-purple/10 rounded-lg p-5 flex flex-col justify-between">
+            <div className="bg-wellness-purple/10 rounded-lg p-5 flex flex-col justify-between mr-4">
               <div>
                 <h3 className="text-lg font-semibold text-wellness-purple-dark">Total Check-ins</h3>
                 <p className="text-3xl font-bold mt-2">{stats.totalCheckIns}</p>
@@ -142,7 +140,7 @@ const DashboardPage = () => {
               </Button>
             </div>
             
-            <div className="bg-wellness-teal/10 rounded-lg p-5 flex flex-col justify-between">
+            <div className="bg-wellness-teal/10 rounded-lg p-5 flex flex-col justify-between mr-4">
               <div>
                 <h3 className="text-lg font-semibold text-wellness-teal-dark">Next Summary</h3>
                 <p className="text-sm font-medium mt-2">
@@ -166,9 +164,9 @@ const DashboardPage = () => {
         </section>
 
         {/* Mood Chart */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Mood Tracking</h2>
+        <section className="ml-4 mr-4">
+          <div className="ml-5 flex items-center justify-between mb-4">
+            <h2 className=" text-xl font-semibold text-gray-800">Mood Tracking</h2>
             <Button 
               variant="ghost" 
               size="sm"
@@ -183,15 +181,15 @@ const DashboardPage = () => {
         </section>
 
         {/* Recommendations */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
+        <section className="ml-4 mr-4">
+          <div className=" ml-5 flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">Personalized Recommendations</h2>
           </div>
           <RecommendationCards />
         </section>
 
         {/* Weekly Summary */}
-        <section>
+        <section className="ml-4 mr-4"> 
           <div className="mt-8">
             <WeeklySummary />
           </div>

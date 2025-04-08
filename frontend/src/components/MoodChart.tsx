@@ -31,11 +31,11 @@ export function MoodChart() {
       setMoodData(response.data);
     } catch (error) {
       console.error('Error fetching mood data:', error);
-      toast({
-        title: "Error",
-        description: "Could not load mood history data",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Could not load mood history data",
+      //   variant: "destructive",
+      // });
     } finally {
       setLoading(false);
     }
