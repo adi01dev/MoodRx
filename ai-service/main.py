@@ -189,17 +189,42 @@ RECOMMENDATION_DATA = {
 
 def verify_token(authorization: str = Header(None)):
     if not authorization:
+        logger.warning("Verify Token: Authorization header missing")
         raise HTTPException(status_code=401, detail="Authorization header missing")
     
     try:
-        token = authorization.replace("Bearer ", "")
+        if not authorization.startswith("Bearer "):
+             logger.warning(f"Verify Token: Invalid format. Header: {authorization[:10]}...")
+             raise HTTPException(status_code=401, detail="Invalid token format")
+             
+        token = authorization.split(" ")[1]
+        
+        # Debugging: Log secret hash to verify consistency without exposing secret
+        import hashlib
+        secret_hash = hashlib.sha256(JWT_SECRET.encode()).hexdigest()
+        logger.info(f"Verify Token: Processing token {token[:10]}... | Secret Hash: {secret_hash[:8]}")
+        
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id = payload.get("user", {}).get("id")
+        
         if not user_id:
+            logger.warning("Verify Token: No user_id in payload")
             raise HTTPException(status_code=401, detail="Invalid token payload")
+            
         return user_id
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        
+    except jwt.ExpiredSignatureError:
+        logger.warning("Verify Token: Token expired")
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidSignatureError:
+        logger.error("Verify Token: Invalid signature. Check JWT_SECRET match between Backend and AI Service.")
+        raise HTTPException(status_code=401, detail="Invalid token signature")
+    except jwt.PyJWTError as e:
+        logger.error(f"Verify Token: Decode error: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+    except Exception as e:
+        logger.error(f"Verify Token: Unexpected error: {str(e)}")
+        raise HTTPException(status_code=401, detail="Token validation failed")
 
 def extract_audio_features(file_path):
     """Extract audio features from a sound file."""
@@ -289,7 +314,15 @@ def analyze_voice_features(features):
 def analyze_text_sentiment(text):
     """Analyze text to determine sentiment and emotions."""
     # Get sentiment
-    sentiment_result = sentiment_pipeline(text)[0]
+    sentiment_output = sentiment_pipeline(text)
+    logger.info(f"Sentiment Output Type: {type(sentiment_output)}")
+    
+    # Handle varying return structures (list of dicts vs list of lists)
+    if isinstance(sentiment_output[0], list):
+        sentiment_result = sentiment_output[0][0]
+    else:
+        sentiment_result = sentiment_output[0]
+        
     sentiment_label = sentiment_result["label"]
     sentiment_score = sentiment_result["score"]
     
@@ -300,7 +333,14 @@ def analyze_text_sentiment(text):
     mood_score = int((normalized_score + 1) * 5)
     
     # Get emotions
-    emotions_result = emotion_pipeline(text)
+    emotions_output = emotion_pipeline(text)
+    logger.info(f"Emotions Output Type: {type(emotions_output)}")
+
+    if isinstance(emotions_output[0], list):
+        emotions_result = emotions_output[0]
+    else:
+        emotions_result = emotions_output
+        
     detected_emotions = [item["label"] for item in emotions_result]
     
     # Map sentiment to mood
@@ -606,7 +646,15 @@ async def analyze_voice(audio: UploadFile = File(...), user_id: str = Depends(ve
             processed_audio_path = wav_path
         
         # Transcribe audio to text
-        transcription = speech_pipeline(processed_audio_path)
+        transcription_output = speech_pipeline(processed_audio_path)
+        logger.info(f"Speech Pipeline Output Type: {type(transcription_output)}")
+        logger.info(f"Speech Pipeline Output: {transcription_output}")
+        
+        if isinstance(transcription_output, list):
+            transcription = transcription_output[0]
+        else:
+            transcription = transcription_output
+            
         transcribed_text = transcription["text"]
         
         # Extract audio features

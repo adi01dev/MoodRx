@@ -264,7 +264,11 @@ router.post('/check-in', auth, async (req, res) => {
     });
   } catch (err) {
     console.error('Error saving check-in:', err);
-    res.status(500).json({ message: 'Error saving check-in' });
+    res.status(500).json({
+      message: 'Error saving check-in',
+      details: err.message, // Return the exact error message (e.g., validation failed)
+      validation: err.errors // Return validation structure if it's a Mongoose error
+    });
   }
 });
 
