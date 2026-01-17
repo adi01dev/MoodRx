@@ -4,7 +4,7 @@ uvicorn==0.29.0
 python-multipart==0.0.9
 numpy==1.26.4
 transformers==4.42.4
-torch==2.2.2
+torch
 librosa==0.10.1
 pydub==0.25.1
 soundfile==0.12.1
@@ -12,4 +12,9 @@ scikit-learn==1.4.2
 requests==2.31.0
 python-dotenv==1.0.1
 PyJWT>=2.0
+pandas==2.2.2
+matplotlib==3.9.0
+seaborn==0.13.2
+fpdf==1.7.2
+pytz==2024.1
 

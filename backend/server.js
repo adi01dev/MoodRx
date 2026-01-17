@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const path = require('path');
-const multer = require('multer');
+
 
 // Load environment variables
 dotenv.config();
@@ -17,17 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
 
-const upload = multer({ storage: storage });
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -42,17 +32,13 @@ app.use('/api/tokens', require('./routes/tokens'));
 const groupRoutes = require("./routes/group.js");
 app.use("/api", groupRoutes);
 
-// Create uploads directory if it doesn't exist
-const fs = require('fs');
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
-}
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
-    
+
     // Optional: Run seed script if specified
     if (process.env.SEED_DATA === 'true') {
       require('./scripts/seedData');
@@ -60,8 +46,7 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

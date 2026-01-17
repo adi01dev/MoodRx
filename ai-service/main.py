@@ -569,7 +569,7 @@ def generate_mood_summary_pdf(check_ins, user_id):
 @app.get("/")
 async def root():
     """Root endpoint to check if the service is running."""
-    return {"message": "Mental Health Mirror AI Service is running"}
+    return {"message": "MoodRx AI Service is running"}
 
 
 
@@ -801,3 +801,6 @@ async def get_stats(user_id: str = Depends(verify_token)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+# DO NOT run uvicorn manually
+# HF runs it automatically

@@ -5,33 +5,22 @@ const auth = require('../middleware/auth');
 const CheckIn = require('../models/CheckIn');
 const User = require('../models/User');
 const Token = require('../models/Token');
+const { storage } = require('../config/cloudinary');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
+const FormData = require('form-data'); // Ensure FormData is required in this scope if not already globally available or use 'form-data' package
 
-// Configure multer for audio uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = 'uploads/audio';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${req.user.id}-${Date.now()}${path.extname(file.originalname)}`);
-  }
-});
-
-const upload = multer({ 
+// Configure multer for audio uploads using Cloudinary
+const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     const fileTypes = /webm|mp3|wav|ogg/;
     const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = fileTypes.test(file.mimetype);
-    
+
     if (mimetype && extname) {
       return cb(null, true);
     } else {
@@ -49,15 +38,22 @@ router.post('/analyze-voice', auth, upload.single('audio'), async (req, res) => 
       return res.status(400).json({ message: 'No audio file uploaded' });
     }
 
-    const audioPath = req.file.path;
+    const audioUrl = req.file.path;
+    console.log('Audio uploaded to Cloudinary:', audioUrl);
 
     // Call Python AI service to analyze audio
+    // Fetch the audio file from Cloudinary to stream it to the AI service
+    const audioResponse = await axios.get(audioUrl, { responseType: 'stream' });
+
     const formData = new FormData();
-    formData.append('audio', fs.createReadStream(audioPath));
-    
+    formData.append('audio', audioResponse.data, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype
+    });
+
     const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-voice`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        ...formData.getHeaders()
       }
     });
 
@@ -74,14 +70,14 @@ router.post('/analyze-voice', auth, upload.single('audio'), async (req, res) => 
 router.post('/analyze-text', auth, async (req, res) => {
   try {
     const { text } = req.body;
-    
+
     if (!text) {
       return res.status(400).json({ message: 'Text is required' });
     }
 
     // Call Python AI service to analyze text
     const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-text`, { text });
-    
+
     res.json(response.data);
   } catch (err) {
     console.error('Error analyzing text:', err);
@@ -94,17 +90,17 @@ router.post('/analyze-text', auth, async (req, res) => {
 // @access  Private
 router.post('/check-in', auth, async (req, res) => {
   try {
-    const { 
-      mood, 
-      moodScore, 
-      energyLevel, 
-      emotionalState, 
-      detectedEmotions, 
-      sentimentScore, 
+    const {
+      mood,
+      moodScore,
+      energyLevel,
+      emotionalState,
+      detectedEmotions,
+      sentimentScore,
       method,
       text
     } = req.body;
-    
+
     // Create new check-in
     const newCheckIn = new CheckIn({
       user: req.user.id,
@@ -117,37 +113,37 @@ router.post('/check-in', auth, async (req, res) => {
       method,
       text: text || null
     });
-    
+
     // Save check-in
     const checkIn = await newCheckIn.save();
-    
+
     // Update user streak
     const user = await User.findById(req.user.id);
-    
+
     let tokensToAward = 0;
     let tokenDescription = '';
-    
+
     // Check if this is the first check-in ever
     if (!user.streak.lastCheckIn) {
       user.streak.count = 1;
       user.streak.lastCheckIn = new Date();
       user.streak.plantLevel = 'sprout';
-      
+
       // Award tokens for first check-in
       tokensToAward = 10;
       tokenDescription = 'First check-in';
     } else {
       const lastCheckIn = new Date(user.streak.lastCheckIn);
       const today = new Date();
-      
+
       // Reset date time parts to compare just the dates
       lastCheckIn.setHours(0, 0, 0, 0);
       today.setHours(0, 0, 0, 0);
-      
+
       // Calculate days between check-ins
       const diffTime = Math.abs(today - lastCheckIn);
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 0) {
         // Already checked in today, don't increment streak
       } else if (diffDays === 1) {
@@ -155,7 +151,7 @@ router.post('/check-in', auth, async (req, res) => {
         const oldStreak = user.streak.count;
         user.streak.count += 1;
         user.streak.lastCheckIn = new Date();
-        
+
         // Update plant level based on streak count
         if (user.streak.count >= 14) {
           user.streak.plantLevel = 'tree';
@@ -166,7 +162,7 @@ router.post('/check-in', auth, async (req, res) => {
         } else {
           user.streak.plantLevel = 'sprout';
         }
-        
+
         // Award tokens based on streak milestones
         if (user.streak.count === 3) {
           tokensToAward = 15;
@@ -190,13 +186,13 @@ router.post('/check-in', auth, async (req, res) => {
         user.streak.count = 1;
         user.streak.lastCheckIn = new Date();
         user.streak.plantLevel = 'sprout';
-        
+
         // Small consolation award for coming back
         tokensToAward = 2;
         tokenDescription = 'Returned for check-in';
       }
     }
-    
+
     // Update token balance if tokens were awarded
     if (tokensToAward > 0) {
       // Initialize tokens object if it doesn't exist
@@ -207,11 +203,11 @@ router.post('/check-in', auth, async (req, res) => {
           lastUpdated: new Date()
         };
       }
-      
+
       user.tokens.balance += tokensToAward;
       user.tokens.lifetime += tokensToAward;
       user.tokens.lastUpdated = new Date();
-      
+
       // Create token transaction record
       const newToken = new Token({
         user: req.user.id,
@@ -220,12 +216,12 @@ router.post('/check-in', auth, async (req, res) => {
         source: 'streak',
         description: tokenDescription
       });
-      
+
       await newToken.save();
     }
-    
+
     await user.save();
-    
+
     // Request personalized recommendations based on mood analysis
     axios.post(`${process.env.AI_SERVICE_URL}/generate-recommendations`, {
       userId: req.user.id,
@@ -235,7 +231,7 @@ router.post('/check-in', auth, async (req, res) => {
       emotionalState,
       detectedEmotions
     }).catch(err => console.error('Error generating recommendations:', err));
-    
+
     res.json({
       checkIn,
       streak: user.streak,
@@ -258,7 +254,7 @@ router.get('/history', auth, async (req, res) => {
   try {
     const checkIns = await CheckIn.find({ user: req.user.id })
       .sort({ createdAt: -1 });
-    
+
     res.json(checkIns);
   } catch (err) {
     console.error('Error fetching mood history:', err);
