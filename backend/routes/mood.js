@@ -42,20 +42,27 @@ router.post('/analyze-voice', auth, upload.single('audio'), async (req, res) => 
     console.log('Audio uploaded to Cloudinary:', audioUrl);
 
     // Call Python AI service to analyze audio
-    // Fetch the audio file from Cloudinary to stream it to the AI service
-    const audioResponse = await axios.get(audioUrl, { responseType: 'stream' });
+    // Fetch the audio file from Cloudinary as a buffer
+    const audioResponse = await axios.get(audioUrl, { responseType: 'arraybuffer' });
+    const audioBuffer = Buffer.from(audioResponse.data);
+
+    console.log('Downloaded audio from Cloudinary, size:', audioBuffer.length);
 
     const formData = new FormData();
-    formData.append('audio', audioResponse.data, {
+    formData.append('audio', audioBuffer, {
       filename: req.file.originalname,
-      contentType: req.file.mimetype
+      contentType: req.file.mimetype,
+      knownLength: audioBuffer.length
     });
 
     const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-voice`, formData, {
       headers: {
         ...formData.getHeaders(),
-        'Authorization': req.header('Authorization')
-      }
+        'Authorization': req.header('Authorization'),
+        'Content-Length': formData.getLengthSync()
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity
     });
 
     res.json(response.data);
@@ -88,8 +95,12 @@ router.post('/analyze-text', auth, async (req, res) => {
 
     res.json(response.data);
   } catch (err) {
-    console.error('Error analyzing text:', err);
-    res.status(500).json({ message: 'Error analyzing text' });
+    console.error('Error analyzing text:', err.message);
+    if (err.response) {
+      console.error('AI Service Error Response:', err.response.data);
+      console.error('AI Service Error Status:', err.response.status);
+    }
+    res.status(500).json({ message: 'Error analyzing text', details: err.response?.data || err.message });
   }
 });
 
