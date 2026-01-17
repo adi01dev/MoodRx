@@ -56,6 +56,18 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "MoodRx Backend",
+    environment: process.env.NODE_ENV || "production"
+  });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
