@@ -330,7 +330,10 @@ def analyze_text_sentiment(text):
     normalized_score = sentiment_score if sentiment_label == "POSITIVE" else -sentiment_score
     
     # Map to 1-10 scale for the app
-    mood_score = int((normalized_score + 1) * 5)
+    # (normalized_score + 1) * 4.5 gives 0 to 9. Add 1 to get 1 to 10.
+    mood_score = int((normalized_score + 1) * 4.5) + 1
+    # Clamp just in case
+    mood_score = max(1, min(10, mood_score))
     
     # Get emotions
     emotions_output = emotion_pipeline(text)
