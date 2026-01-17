@@ -60,8 +60,12 @@ router.post('/analyze-voice', auth, upload.single('audio'), async (req, res) => 
 
     res.json(response.data);
   } catch (err) {
-    console.error('Error analyzing voice:', err);
-    res.status(500).json({ message: 'Error analyzing voice recording' });
+    console.error('Error analyzing voice:', err.message);
+    if (err.response) {
+      console.error('AI Service Error Response:', err.response.data);
+      console.error('AI Service Error Status:', err.response.status);
+    }
+    res.status(500).json({ message: 'Error analyzing voice recording', details: err.response?.data || err.message });
   }
 });
 
