@@ -109,7 +109,7 @@ router.post('/analyze-text', auth, async (req, res) => {
 // @access  Private
 router.post('/check-in', auth, async (req, res) => {
   try {
-    const {
+    let {
       mood,
       moodScore,
       energyLevel,
@@ -119,6 +119,11 @@ router.post('/check-in', auth, async (req, res) => {
       method,
       text
     } = req.body;
+
+    // Defensive programming: Ensure scores are within valid range (1-10)
+    // This handles cases where AI service might return 0 or invalid numbers
+    moodScore = Math.max(1, Math.min(10, parseInt(moodScore) || 5));
+    energyLevel = Math.max(1, Math.min(10, parseInt(energyLevel) || 5));
 
     // Create new check-in
     const newCheckIn = new CheckIn({
