@@ -53,7 +53,8 @@ router.post('/analyze-voice', auth, upload.single('audio'), async (req, res) => 
 
     const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-voice`, formData, {
       headers: {
-        ...formData.getHeaders()
+        ...formData.getHeaders(),
+        'Authorization': req.header('Authorization')
       }
     });
 
@@ -76,7 +77,10 @@ router.post('/analyze-text', auth, async (req, res) => {
     }
 
     // Call Python AI service to analyze text
-    const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-text`, { text });
+    const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-text`,
+      { text },
+      { headers: { 'Authorization': req.header('Authorization') } }
+    );
 
     res.json(response.data);
   } catch (err) {
@@ -230,6 +234,8 @@ router.post('/check-in', auth, async (req, res) => {
       energyLevel,
       emotionalState,
       detectedEmotions
+    }, {
+      headers: { 'Authorization': req.header('Authorization') }
     }).catch(err => console.error('Error generating recommendations:', err));
 
     res.json({

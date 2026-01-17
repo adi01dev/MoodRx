@@ -13,7 +13,7 @@ router.get('/', auth, async (req, res) => {
     console.log('Authenticated user:', req.user);
     const journals = await Journal.find({ user: req.user._id })
       .sort({ createdAt: -1 });
-    
+
     res.json(journals);
   } catch (err) {
     console.error('Error fetching journal entries:', err);
@@ -27,20 +27,22 @@ router.get('/', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const { title, content, isPrivate, tags } = req.body;
-    
+
     // Get mood analysis for journal content
     let mood = null;
-    
+
     try {
       const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-text`, {
         text: content
+      }, {
+        headers: { 'Authorization': req.header('Authorization') }
       });
-      
+
       mood = response.data.mood;
     } catch (err) {
       console.error('Error analyzing journal mood:', err);
     }
-    
+
     // Create new journal entry
     const newJournal = new Journal({
       user: req.user.id,
@@ -50,9 +52,9 @@ router.post('/', auth, async (req, res) => {
       tags: tags || [],
       isPrivate: isPrivate !== undefined ? isPrivate : true
     });
-    
+
     const journal = await newJournal.save();
-    
+
     res.json(journal);
   } catch (err) {
     console.error('Error creating journal entry:', err);
@@ -78,11 +80,11 @@ router.get('/:id', auth, async (req, res) => {
       _id: req.params.id,
       user: req.user.id
     });
-    
+
     if (!journal) {
       return res.status(404).json({ message: 'Journal entry not found' });
     }
-    
+
     res.json(journal);
   } catch (err) {
     console.error('Error fetching journal entry:', err);
@@ -96,32 +98,34 @@ router.get('/:id', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   try {
     const { title, content, isPrivate, tags } = req.body;
-    
+
     // Check if journal exists
     let journal = await Journal.findOne({
       _id: req.params.id,
       user: req.user.id
     });
-    
+
     if (!journal) {
       return res.status(404).json({ message: 'Journal entry not found' });
     }
-    
+
     // Get mood analysis if content has changed
     let mood = journal.mood;
-    
+
     if (content && content !== journal.content) {
       try {
         const response = await axios.post(`${process.env.AI_SERVICE_URL}/analyze-text`, {
           text: content
+        }, {
+          headers: { 'Authorization': req.header('Authorization') }
         });
-        
+
         mood = response.data.mood;
       } catch (err) {
         console.error('Error analyzing updated journal mood:', err);
       }
     }
-    
+
     // Update journal fields
     const journalFields = {};
     if (title) journalFields.title = title;
@@ -129,14 +133,14 @@ router.put('/:id', auth, async (req, res) => {
     if (isPrivate !== undefined) journalFields.isPrivate = isPrivate;
     if (tags) journalFields.tags = tags;
     journalFields.mood = mood;
-    
+
     // Update journal
     journal = await Journal.findByIdAndUpdate(
       req.params.id,
       { $set: journalFields },
       { new: true }
     );
-    
+
     res.json(journal);
   } catch (err) {
     console.error('Error updating journal entry:', err);
@@ -154,14 +158,14 @@ router.delete('/:id', auth, async (req, res) => {
       _id: req.params.id,
       user: req.user.id
     });
-    
+
     if (!journal) {
       return res.status(404).json({ message: 'Journal entry not found' });
     }
-    
+
     // Delete journal
     await Journal.findByIdAndRemove(req.params.id);
-    
+
     res.json({ message: 'Journal entry removed' });
   } catch (err) {
     console.error('Error deleting journal entry:', err);

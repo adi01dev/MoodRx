@@ -3,7 +3,7 @@ import { env } from "./env";
 
 
 export const api = axios.create({
-  baseURL: env.API_URL || "http://localhost:5000/api",
+  baseURL: env.API_URL || "https://moodrx-backend.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,7 +11,7 @@ export const api = axios.create({
 
 
 export const aiApi = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "https://adi01dev-moodrx-ai.hf.space",
   headers: {
     "Content-Type": "application/json",
   },
