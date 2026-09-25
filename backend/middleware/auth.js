@@ -13,7 +13,7 @@ module.exports = async function(req, res, next) {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'moodrx_default_jwt_secret_key_2026');
     
     // Find user by id
     const user = await User.findById(decoded.user.id).select('-password');

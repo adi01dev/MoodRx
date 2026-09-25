@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "node init && vite",
+    "build": "node init && vite build",
+    "build:dev": "node init && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -84,12 +84,10 @@
     "vite": "^5.4.8"
   },
   "engines": {
-  "node": "24.x"
-},
-
+    "node": ">=18.x"
+  },
   "description": "A comprehensive mental health platform that helps users track their emotional well-being through voice analysis, personalized recommendations, and community support.",
   "main": "eslint.config.js",
   "author": "",
   "license": "ISC"
 }
-
