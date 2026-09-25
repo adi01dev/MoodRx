@@ -4,10 +4,11 @@ import type { Config } from "tailwindcss";
 export default {
 	darkMode: ["class"],
 	content: [
+		"./index.html",
+		"./src/**/*.{js,jsx,ts,tsx,html}",
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
 	],
 	prefix: "",
 	theme: {
@@ -63,8 +64,26 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				mhm: {
+					blue: {
+						50: '#f0f9ff',
+						100: '#e0f2fe',
+						500: '#0288d1',
+						600: '#0277bd'
+					},
+					green: {
+						50: '#f0fdf4',
+						100: '#dcfce7',
+						500: '#4caf50'
+					},
+					yellow: {
+						100: '#fef9c3',
+						500: '#ffc107'
+					}
+				},
 				// Mental Health Mirror custom colors
 				wellness: {
+					lavender: '#EDE9FE',
 					green: {
 						light: '#8BC34A',
 						DEFAULT: '#4CAF50',

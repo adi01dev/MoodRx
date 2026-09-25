@@ -1,6 +1,4 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,5 +96,9 @@
   
   .btn-accent {
     @apply bg-wellness-yellow hover:bg-wellness-yellow-dark transition-colors;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-wellness-green via-wellness-blue to-wellness-purple;
   }
 }
