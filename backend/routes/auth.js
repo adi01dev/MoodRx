@@ -54,7 +54,7 @@ router.post(
       // Sign and return JWT
       jwt.sign(
         payload,
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'moodrx_default_jwt_secret_key_2026',
         { expiresIn: '7d' },
         (err, token) => {
           if (err) throw err;
@@ -118,7 +118,7 @@ router.post(
       // Sign and return JWT
       jwt.sign(
         payload,
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'moodrx_default_jwt_secret_key_2026',
         { expiresIn: '7d' },
         (err, token) => {
           if (err) throw err;
