@@ -24,18 +24,18 @@ const Index = () => {
   return (
     <Layout hideNavigation>
       {/* Hero Section */}
-      <section className="py-16 md:py-24 ">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-4xl">
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight">
               Your Mental Health <span className="gradient-text">Mirror</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground max-w-2xl">
               Track your mood, receive personalized recommendations, and
               understand your emotional patterns with our AI-powered wellness
               companion.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
               {user ? (
                 <Button size="lg" className="btn-primary" asChild>
                   <Link to="/dashboard">
@@ -56,21 +56,6 @@ const Index = () => {
                   </Button>
                 </>
               )}
-            </div>
-          </div>
-          <div className="rounded-xl overflow-hidden shadow-xl">
-            <div className="absolute top-1/2 right-12 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 bg-white rounded-full shadow-xl overflow-hidden">
-              <div className="absolute inset-2 bg-gradient-to-br from-wellness-lavender via-white to-wellness-green rounded-full">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-5xl mb-4">🌱</div>
-                    <h2 className="text-xl font-medium mb-2">Grow Your Mind</h2>
-                    <p className="text-sm text-gray-600">
-                      Track your emotional journey
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
